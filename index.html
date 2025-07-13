@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>조회</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <h2>조회</h2>
+    <table id="boardTable" data-sort-col="" data-sort-dir="">
+        <thead>
+            <tr>
+                <th>
+                    <span class="sortable" onclick="sortTable(0)">이름</span><br />
+                    <input type="text" id="searchName" onkeyup="filterTable()" placeholder="검색..." />
+                </th>
+                <th>
+                    <span class="sortable" onclick="sortTable(1)">사번</span><br />
+                    <input type="text" id="searchEmpNo" onkeyup="filterTable()" placeholder="검색..." />
+                </th>
+                <th>
+                    <span class="sortable" onclick="sortTable(2)">부1</span><br />
+                    <input type="text" id="searchDept1" onkeyup="filterTable()" placeholder="검색..." />
+                </th>
+                <th>
+                    <span class="sortable" onclick="sortTable(3)">부서2</span><br />
+                    <input type="text" id="searchDept2" onkeyup="filterTable()" placeholder="검색..." />
+                </th>
+                <th>
+                    <span class="sortable" onclick="sortTable(4)">비고</span><br />
+                    <input type="text" id="searchRemarks" onkeyup="filterTable()" placeholder="검색..." />
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <c:forEach var="item" items="${itemList}">
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.empNo}</td>
+                    <td>${item.dept1}</td>
+                    <td>${item.dept2}</td>
+                    <td>${item.remarks}</td>
+                </tr>
+            </c:forEach>
+        </tbody>
+    </table>
+
+    <script>
+    function sortTable(n) {
+        const table = document.getElementById("boardTable");
+        const tbody = table.tBodies[0];
+        const rows = Array.from(tbody.rows);
+        const currentCol = table.getAttribute("data-sort-col");
+        const currentDir = table.getAttribute("data-sort-dir");
+        const asc = (currentCol == n && currentDir == "asc") ? false : true;
+        rows.sort(function(a, b) {
+            let A = a.cells[n].textContent.trim().toLowerCase();
+            let B = b.cells[n].textContent.trim().toLowerCase();
+            if (!isNaN(A) && !isNaN(B)) {
+                return asc ? (A - B) : (B - A);
+            }
+            return asc ? A.localeCompare(B) : B.localeCompare(A);
+        });
+        rows.forEach(row => tbody.appendChild(row));
+        table.setAttribute("data-sort-col", n);
+        table.setAttribute("data-sort-dir", asc ? "asc" : "desc");
+    }
+
+    function filterTable() {
+        const table = document.getElementById("boardTable");
+        const filters = {
+            name: document.getElementById("searchName").value.toLowerCase(),
+            empNo: document.getElementById("searchEmpNo").value.toLowerCase(),
+            dept1: document.getElementById("searchDept1").value.toLowerCase(),
+            dept2: document.getElementById("searchDept2").value.toLowerCase(),
+            remarks: document.getElementById("searchRemarks").value.toLowerCase()
+        };
+        const rows = table.tBodies[0].rows;
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].cells;
+            const values = {
+                name: cells[0].textContent.toLowerCase(),
+                empNo: cells[1].textContent.toLowerCase(),
+                dept1: cells[2].textContent.toLowerCase(),
+                dept2: cells[3].textContent.toLowerCase(),
+                remarks: cells[4].textContent.toLowerCase()
+            };
+            const visible = Object.keys(filters).every(key => values[key].includes(filters[key]));
+            rows[i].style.display = visible ? "" : "none";
+        }
+    }
+    </script>
+</body>
+</html>
